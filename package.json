@@ -1,0 +1,44 @@
+{
+  "name": "koishi-plugin-aka-ai-video-generator",
+  "version": "0.1.0",
+  "description": "AI video generator for Koishi (V2 architecture: credit billing, image-to-video / multi-image-to-video, yunwu provider).",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "docs"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts --sourcemap",
+    "clean": "rimraf dist",
+    "typecheck": "tsc --project tsconfig.json --noEmit",
+    "dev": "tsup src/index.ts --format esm,cjs --dts --sourcemap --watch"
+  },
+  "keywords": [
+    "koishi",
+    "plugin",
+    "ai",
+    "video",
+    "generator",
+    "yunwu",
+    "image-to-video"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "koishi": "^4.17.0"
+  },
+  "devDependencies": {
+    "koishi": "^4.17.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.4.0",
+    "rimraf": "^5.0.0"
+  }
+}
