@@ -43,7 +43,7 @@ function classifyVideoModel(modelId: string): string | null {
 
 /** 从新 API 拉取模型清单 + 定价表，构建视频模型目录 */
 export async function fetchModelCatalog(apiBase: string, apiKey: string, timeoutSec: number): Promise<ModelCatalog> {
-  const fetchJson = async (url: string) => {
+  const fetchJson = async (url: string): Promise<any> => {
     const controller = new AbortController()
     const timer = setTimeout(() => controller.abort(), timeoutSec * 1000)
     try {

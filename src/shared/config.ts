@@ -72,10 +72,21 @@ const ModelSelectSchema = Schema.object({
   apiBase: Schema.string().default('https://yunwu.ai').description('API 基础地址'),
 }).description('🎬 视频生成配置')
 
-/** 各模型的专属配置字段（非当前模型的字段 hidden 保留值，对齐 v2 图像插件） */
+/** 各模型的专属配置字段（非当前模型的字段 hidden 保留值，对齐 v2 图像插件；全部下拉枚举） */
 const grokFields = {
-  grokModelId: Schema.string().default('grok-imagine-video').description('Grok 模型 ID'),
-  multiImageModelId: Schema.string().description('多图模型 ID（可选）'),
+  grokModelId: Schema.union([
+    Schema.const('grok-imagine-video').description('grok-imagine-video（稳定版）'),
+    Schema.const('grok-imagine-video-1.5-preview').description('grok-imagine-video-1.5-preview（预览新版）'),
+  ])
+    .default('grok-imagine-video')
+    .description('Grok 模型'),
+  multiImageModelId: Schema.union([
+    Schema.const('').description('不使用多图模型'),
+    Schema.const('grok-imagine-video').description('grok-imagine-video（稳定版）'),
+    Schema.const('grok-imagine-video-1.5-preview').description('grok-imagine-video-1.5-preview（预览新版）'),
+  ])
+    .default('')
+    .description('多图模型（可选）'),
 }
 const klingFields = {
   klingModelName: Schema.union([
@@ -91,12 +102,21 @@ const klingFields = {
     .description('可灵模型'),
 }
 const omniFields = {
-  omniModelId: Schema.string().default('omni-flash').description('Omni 模型 ID'),
+  omniModelId: Schema.union([
+    Schema.const('omni-flash').description('omni-flash'),
+    Schema.const('omni-flash-edit').description('omni-flash-edit（视频编辑）'),
+  ])
+    .default('omni-flash')
+    .description('Omni 模型（云雾侧未上线）'),
 }
 const seedanceFields = {
-  seedanceModelId: Schema.string()
+  seedanceModelId: Schema.union([
+    Schema.const('doubao-seedance-1-0-pro-fast-251015').description('seedance-1-0-pro-fast（快速版，云雾自动升级 1-5-pro）'),
+    Schema.const('doubao-seedance-1-0-pro-250528').description('seedance-1-0-pro（标准版）'),
+    Schema.const('doubao-seedance-1-5-pro-251215').description('seedance-1-5-pro（文档示例版）'),
+  ])
     .default('doubao-seedance-1-0-pro-fast-251015')
-    .description('Seedance 模型 ID'),
+    .description('Seedance 模型'),
 }
 const viduFields = {
   viduModelId: Schema.union([
