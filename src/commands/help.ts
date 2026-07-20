@@ -28,6 +28,7 @@ export function registerHelpAndBalanceCommands(deps: CommandDeps): void {
       `合图生视频 [图片x2-4] <描述> — 多张图片合成视频`,
       `文生视频 <描述> — 纯文字生成视频（需模型支持）`,
       `视频任务 [任务ID] — 查询任务状态，不带参数则列出全部`,
+      `视频模型 — 查询供应商提供的可用视频模型列表`,
       `视频余额 — 查询积分余额`,
       ``,
       `【可选参数】`,
