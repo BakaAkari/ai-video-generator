@@ -5,6 +5,7 @@ export interface ParsedVideoArgs {
   prompt: string
   duration: number
   aspectRatio: string
+  size: string
   cost: number
 }
 
@@ -30,6 +31,7 @@ export function parseVideoArgs(rest: string, config: Config): ParsedVideoArgs {
     prompt,
     duration,
     aspectRatio,
+    size: config.defaultSize,
     cost: computeVideoCost(config.billing, duration),
   }
 }

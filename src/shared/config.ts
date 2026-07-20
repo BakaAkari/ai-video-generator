@@ -26,8 +26,10 @@ export interface Config {
   videoMaxWaitTime: number
   /** 默认视频时长（秒） */
   defaultDuration: number
-  /** 默认画面比例 */
+  /** 默认画面比例（grok：2:3 | 3:2 | 1:1） */
   defaultAspectRatio: string
+  /** 默认尺寸档位（grok：720P，1080P 暂未开放） */
+  defaultSize: string
   /** 计费配置 */
   billing: BillingConfig
   /** 数据目录（默认 <koishi-data>/aka-ai-video-generator；指向图像版目录可共享积分） */
@@ -47,7 +49,8 @@ export const Config: Schema<Config> = Schema.object({
   apiTimeout: Schema.number().default(60).description('API 超时（秒）'),
   videoMaxWaitTime: Schema.number().default(300).description('视频任务最长等待（秒）'),
   defaultDuration: Schema.number().default(5).description('默认视频时长（秒）'),
-  defaultAspectRatio: Schema.string().default('16:9').description('默认画面比例'),
+  defaultAspectRatio: Schema.string().default('3:2').description('默认画面比例（grok 支持 2:3 / 3:2 / 1:1）'),
+  defaultSize: Schema.string().default('720P').description('默认尺寸档位（grok 暂只支持 720P）'),
   billing: Schema.object({
     baseCredits: Schema.number().default(2).description('每个视频任务基础积分'),
     perSecondCredits: Schema.number().default(0.5).description('每秒视频附加积分'),

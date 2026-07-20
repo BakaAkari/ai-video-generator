@@ -26,7 +26,7 @@ export function registerVideoCommands(deps: CommandDeps): void {
   ctx
     .command(`${CMD_TEXT2VIDEO} <prompt:text>`, '文字描述生成视频')
     .option('duration', '-d <seconds:int> 视频时长（秒）')
-    .option('ratio', '-r <ratio:string> 画面比例，如 16:9')
+    .option('ratio', '-r <ratio:string> 画面比例（grok 支持 2:3/3:2/1:1）')
     .action(async ({ session, options }, prompt) => {
       if (!session) return '会话无效'
       return executeVideoCommand(deps, session, {
@@ -40,7 +40,7 @@ export function registerVideoCommands(deps: CommandDeps): void {
   ctx
     .command(`${CMD_IMG2VIDEO} [rest:text]`, '单张图片生成视频')
     .option('duration', '-d <seconds:int> 视频时长（秒）')
-    .option('ratio', '-r <ratio:string> 画面比例，如 16:9')
+    .option('ratio', '-r <ratio:string> 画面比例（grok 支持 2:3/3:2/1:1）')
     .action(async ({ session }, rest) => {
       if (!session) return '会话无效'
       return executeVideoCommand(deps, session, {
@@ -54,7 +54,7 @@ export function registerVideoCommands(deps: CommandDeps): void {
   ctx
     .command(`${CMD_MULTI_IMG2VIDEO} [rest:text]`, '多张图片合成视频（2-4张）')
     .option('duration', '-d <seconds:int> 视频时长（秒）')
-    .option('ratio', '-r <ratio:string> 画面比例，如 16:9')
+    .option('ratio', '-r <ratio:string> 画面比例（grok 支持 2:3/3:2/1:1）')
     .action(async ({ session }, rest) => {
       if (!session) return '会话无效'
       return executeVideoCommand(deps, session, {
@@ -154,6 +154,7 @@ async function executeVideoCommand(deps: CommandDeps, session: Session, options:
       imageUrls,
       duration: args.duration,
       aspectRatio: args.aspectRatio,
+      size: args.size,
       cost: args.cost,
     })
   } finally {

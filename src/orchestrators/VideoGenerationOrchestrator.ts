@@ -24,6 +24,7 @@ export interface VideoFlowInput {
   imageUrls: string[]
   duration: number
   aspectRatio: string
+  size: string
   cost: number
 }
 
@@ -34,7 +35,7 @@ export interface VideoFlowInput {
  */
 export async function runVideoGenerationFlow(deps: VideoFlowDeps, input: VideoFlowInput): Promise<string> {
   const { config, logger, userManager, videoProvider, store } = deps
-  const { session, userId, userName, commandName, prompt, imageUrls, duration, aspectRatio, cost } = input
+  const { session, userId, userName, commandName, prompt, imageUrls, duration, aspectRatio, size, cost } = input
 
   // 1. reserve 额度
   const quota = userManager.checkAndReserveQuota(userId, userName, cost)
@@ -43,7 +44,7 @@ export async function runVideoGenerationFlow(deps: VideoFlowDeps, input: VideoFl
   // 2. 提交任务
   let taskId: string
   try {
-    taskId = await videoProvider.createVideoTask(prompt, imageUrls, { duration, aspectRatio })
+    taskId = await videoProvider.createVideoTask(prompt, imageUrls, { duration, aspectRatio, size })
   } catch (error: any) {
     userManager.refundUsage(userId, userName, cost, `${commandName} 创建失败退款`)
     logger.error('创建视频任务失败', { userId, error: sanitizeString(error?.message) })

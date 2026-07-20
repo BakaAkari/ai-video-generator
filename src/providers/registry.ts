@@ -13,6 +13,7 @@ export function createVideoProvider(ctx: Context, config: Config): VideoProvider
         modelId: config.videoModelId,
         multiImageModelId: config.multiImageModelId,
         apiTimeout: config.apiTimeout,
+        defaultSize: config.defaultSize,
         ctx,
       })
     default:

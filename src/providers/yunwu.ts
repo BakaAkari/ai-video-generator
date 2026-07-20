@@ -3,9 +3,10 @@ import { ProviderError, sanitizeString } from './errors'
 import { downloadImageAsBase64 } from './utils'
 
 /**
- * 云雾（yunwu）视频供应商
- * 协议：POST {apiBase}/v1/video/create → { id }
- *      GET  {apiBase}/v1/video/query?id=<taskId> → { status, video_url?, progress?, error? }
+ * 云雾（yunwu）视频供应商 —— grok 视频统一格式
+ * 文档：https://yunwu.apifox.cn/doc-7764812
+ * 创建：POST {apiBase}/v1/video/create  { model, prompt, aspect_ratio(2:3|3:2|1:1), size(720P), images[](垫图链接) }
+ * 查询：GET  {apiBase}/v1/video/query?id=<taskId> → { id, status, video_url, enhanced_prompt, status_update_time }
  */
 export class YunwuVideoProvider implements VideoProvider {
   constructor(private config: VideoProviderConfig) {}
@@ -47,7 +48,8 @@ export class YunwuVideoProvider implements VideoProvider {
     const body: Record<string, unknown> = {
       model,
       prompt,
-      aspect_ratio: options?.aspectRatio || '16:9',
+      aspect_ratio: options?.aspectRatio || '3:2',
+      size: options?.size || this.config.defaultSize || '720P',
     }
     if (images.length > 0) body.images = images
     if (options?.duration) body.duration = options.duration
@@ -89,7 +91,7 @@ export class YunwuVideoProvider implements VideoProvider {
       throw new ProviderError(`查询任务失败: ${sanitizeString(error?.message)}`, 'retryable', error)
     }
     return {
-      status: (response?.status as VideoTaskStatus['status']) || 'pending',
+      status: normalizeGrokStatus(response?.status),
       taskId: String(response?.id ?? taskId),
       videoUrl: response?.video_url || undefined,
       error: response?.error ? sanitizeString(response.error) : undefined,
@@ -119,4 +121,18 @@ export class YunwuVideoProvider implements VideoProvider {
     }
     throw new ProviderError(`等待超时，任务ID: ${taskId}`, 'retryable')
   }
+}
+
+/**
+ * grok 统一格式状态映射到插件通用状态
+ * 文档状态机：pending → image_downloading → video_generating → video_generation_completed → completed
+ *           （另有 video_upsampling* 系列、failed、error）
+ */
+function normalizeGrokStatus(raw: unknown): VideoTaskStatus['status'] {
+  const s = String(raw || 'pending')
+  if (s === 'completed') return 'completed'
+  if (s === 'failed' || s === 'error' || s.endsWith('_failed')) return 'failed'
+  if (s === 'pending') return 'pending'
+  // image_downloading / video_generating / video_generation_completed / video_upsampling* 等均为处理中
+  return 'processing'
 }

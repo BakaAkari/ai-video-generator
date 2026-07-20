@@ -47,6 +47,7 @@ export class AiVideoGeneratorService extends Service {
     imageUrls?: string[]
     duration?: number
     aspectRatio?: string
+    size?: string
   }): Promise<string> {
     const { userId, prompt } = params
     const userName = params.userName || userId
@@ -60,7 +61,7 @@ export class AiVideoGeneratorService extends Service {
       const url = await this.videoProvider.generateVideo(
         prompt,
         params.imageUrls ?? [],
-        { duration, aspectRatio: params.aspectRatio },
+        { duration, aspectRatio: params.aspectRatio, size: params.size ?? this.serviceConfig.defaultSize },
         this.serviceConfig.videoMaxWaitTime,
       )
       this.userManager.commitUsage(userId, userName, cost, 'service:generateVideo')
