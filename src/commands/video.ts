@@ -64,18 +64,7 @@ export function registerVideoCommands(deps: CommandDeps): void {
       })
     })
 
-  // 别名：视频生成 = 图生视频
-  ctx
-    .command('视频生成 [rest:text]', '视频生成（等同于图生视频）')
-    .alias(CMD_IMG2VIDEO)
-    .action(async ({ session }, rest) => {
-      if (!session) return '会话无效'
-      return executeVideoCommand(deps, session, {
-        mode: 'single',
-        rest: rest || '',
-        commandName: '视频生成',
-      })
-    })
+  // 别名已在 CMD_IMG2VIDEO 上注册，无需额外命令
 }
 
 interface ExecuteOptions {
@@ -105,7 +94,7 @@ async function executeVideoCommand(deps: CommandDeps, session: Session, options:
     let finalPrompt = args.prompt
 
     if (options.mode === 'single' && imageUrls.length > 1) {
-      return '单图生视频只支持 1 张图片，请使用「多图生视频」命令'
+      return '单图模式只支持 1 张图片，请使用「合图生视频」命令'
     }
     if (options.mode === 'multiple' && imageUrls.length > MAX_MULTI_IMAGES) {
       return `最多支持 ${MAX_MULTI_IMAGES} 张图片，请减少图片数量`
