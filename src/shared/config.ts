@@ -10,15 +10,17 @@ export interface BillingConfig {
 }
 
 export interface Config {
-  /** 视频供应商 */
-  provider: 'yunwu' | 'kling' | 'omni' | 'seedance' | 'vidu'
-  /** API Key */
-  /** API Key（云雾统一 key，全 provider 共享） */
-  apiKey: string  /** API 基础地址 */
+  /** API 供应商（中转商） */
+  provider: 'yunwu'
+  /** 视频生成 AI 模型（yunwu 供应商内选择） */
+  videoModel: 'grok' | 'kling' | 'omni' | 'seedance' | 'vidu'
+  /** API Key（云雾统一 key，全模型共享） */
+  apiKey: string
+  /** API 基础地址 */
   apiBase: string
-  /** yunwu(grok) 模型 ID */
-  yunwuModelId: string
-  /** yunwu 多图模型 ID（可选） */
+  /** grok 模型 ID */
+  grokModelId: string
+  /** grok 多图模型 ID（可选） */
   multiImageModelId?: string
   /** kling 模型名 */
   klingModelName: string
@@ -51,10 +53,11 @@ export interface Config {
 }
 
 export const Config: Schema<Config> = Schema.object({
-  provider: Schema.union(['yunwu', 'kling', 'omni', 'seedance', 'vidu'] as const).default('yunwu').description('视频供应商（yunwu=grok官方格式 / kling=可灵专属 / omni=Gemini统一格式 / seedance=豆包volc / vidu=VIDU专属）'),
+  provider: Schema.union(['yunwu'] as const).default('yunwu').description('API 供应商'),
+  videoModel: Schema.union(['grok', 'kling', 'omni', 'seedance', 'vidu'] as const).default('grok').description('视频生成 AI 模型（grok=xAI官方格式 / kling=可灵 / omni=Gemini(云雾未上线) / seedance=豆包 / vidu=VIDU）'),
   apiKey: Schema.string().required().description('API Key（云雾统一 key，全 provider 共享）'),
   apiBase: Schema.string().default('https://yunwu.ai').description('API 基础地址'),
-  yunwuModelId: Schema.string().default('grok-imagine-video').description('yunwu(grok) 模型 ID'),
+  grokModelId: Schema.string().default('grok-imagine-video').description('grok 模型 ID'),
   multiImageModelId: Schema.string().description('多图视频模型 ID（可选，配置后多图请求走该模型）'),
   klingModelName: Schema.string().default('kling-v3').description('kling 模型名（kling-v1/v1-6/v2-master/v2-1-master/v2-5-turbo/v2-6/v3）'),
   omniModelId: Schema.string().default('omni-flash').description('omni(Gemini) 模型 ID'),
