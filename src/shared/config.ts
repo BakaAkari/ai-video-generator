@@ -11,7 +11,7 @@ export interface BillingConfig {
 
 export interface Config {
   /** 视频供应商 */
-  provider: 'yunwu'
+  provider: 'yunwu' | 'kling' | 'omni' | 'seedance' | 'vidu'
   /** API Key */
   apiKey: string
   /** API 基础地址 */
@@ -43,7 +43,7 @@ export interface Config {
 }
 
 export const Config: Schema<Config> = Schema.object({
-  provider: Schema.union(['yunwu'] as const).default('yunwu').description('视频供应商'),
+  provider: Schema.union(['yunwu', 'kling', 'omni', 'seedance', 'vidu'] as const).default('yunwu').description('视频供应商（yunwu=grok官方格式 / kling=可灵专属 / omni=Gemini统一格式 / seedance=豆包volc / vidu=VIDU专属）'),
   apiKey: Schema.string().required().description('API Key'),
   apiBase: Schema.string().default('https://yunwu.ai').description('API 基础地址'),
   videoModelId: Schema.string().required().description('单图/文生视频模型 ID'),
