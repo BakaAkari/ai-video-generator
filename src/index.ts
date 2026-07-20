@@ -20,7 +20,7 @@ export function apply(ctx: Context, config: Config) {
 
   logger.info('插件启动', { dataDir, provider: config.provider })
 
-  const userManager = new UserManager(ctx, dataDir, config.billing.dailyFreeCreditsLimit)
+  const userManager = new UserManager(ctx, dataDir, config.billing.dailyFreeCreditsLimit, config.adminUsers || [])
   const store = new VideoContextStore(dataDir)
   const videoProvider = createVideoProvider(ctx, config)
 

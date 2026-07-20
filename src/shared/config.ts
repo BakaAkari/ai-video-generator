@@ -32,6 +32,8 @@ export interface Config {
   defaultSize: string
   /** 计费配置 */
   billing: BillingConfig
+  /** 管理员 QQ 号列表（免积分、不受并发限制） */
+  adminUsers: string[]
   /** 数据目录（默认 <koishi-data>/aka-ai-video-generator；指向图像版目录可共享积分） */
   dataDir?: string
   /** 日志级别 */
@@ -49,13 +51,14 @@ export const Config: Schema<Config> = Schema.object({
   apiTimeout: Schema.number().default(60).description('API 超时（秒）'),
   videoMaxWaitTime: Schema.number().default(300).description('视频任务最长等待（秒）'),
   defaultDuration: Schema.number().default(5).description('默认视频时长（秒）'),
-  defaultAspectRatio: Schema.string().default('3:2').description('默认画面比例（grok 支持 2:3 / 3:2 / 1:1）'),
-  defaultSize: Schema.string().default('720P').description('默认尺寸档位（grok 暂只支持 720P）'),
+  defaultAspectRatio: Schema.string().default('16:9').description('默认画面比例（grok 官方格式支持 1:1 / 16:9 / 9:16）'),
+  defaultSize: Schema.string().default('720p').description('默认分辨率（grok 官方格式：480p / 720p）'),
   billing: Schema.object({
     baseCredits: Schema.number().default(2).description('每个视频任务基础积分'),
     perSecondCredits: Schema.number().default(0.5).description('每秒视频附加积分'),
     dailyFreeCreditsLimit: Schema.number().default(0.4).description('每日免费积分额度'),
   }).description('计费配置'),
+  adminUsers: Schema.array(Schema.string()).default([]).description('管理员 QQ 号列表（免积分）'),
   dataDir: Schema.string().description('数据目录（留空使用默认；指向 aka-ai-image-generator 数据目录可共享积分账户）'),
   logLevel: Schema.union(['debug', 'info', 'warn', 'error'] as const).default('info').description('日志级别'),
   promptTimeout: Schema.number().default(120).description('交互提示等待超时（秒）'),

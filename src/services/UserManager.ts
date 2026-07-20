@@ -67,11 +67,18 @@ export class UserManager {
     private ctx: Context,
     dataDir: string,
     private dailyFreeLimit: number,
+    /** 管理员 QQ 号列表（免积分、不受并发限制） */
+    private adminUsers: string[] = [],
   ) {
     fs.mkdirSync(dataDir, { recursive: true })
     this.usersPath = path.join(dataDir, 'users.v2.json')
     this.ledgerPath = path.join(dataDir, 'credit-ledger.v2.jsonl')
     this.data = this.loadUsers()
+  }
+
+  /** 是否管理员 */
+  isAdmin(userId: string): boolean {
+    return this.adminUsers.includes(String(userId))
   }
 
   private loadUsers(): UsersFile {
@@ -134,8 +141,9 @@ export class UserManager {
     return { free, purchased, total: roundCredits(free + purchased) }
   }
 
-  /** 检查并预留额度（优先扣免费额度） */
+  /** 检查并预留额度（优先扣免费额度；管理员跳过） */
   checkAndReserveQuota(userId: string, userName: string, cost: number): QuotaCheckResult {
+    if (this.isAdmin(userId)) return { allowed: true }
     const user = this.getOrCreateUser(userId, userName)
     const { total } = this.getAvailableCredits(userId, userName)
     if (total < cost) {
@@ -158,10 +166,12 @@ export class UserManager {
     return { allowed: true }
   }
 
-  /** 任务成功：确认消费，写流水 */
+  /** 任务成功：确认消费，写流水（管理员只记统计不扣费） */
   commitUsage(userId: string, userName: string, cost: number, reason: string): void {
     const user = this.getOrCreateUser(userId, userName)
-    user.balance.totalConsumedCredits = roundCredits(user.balance.totalConsumedCredits + cost)
+    if (!this.isAdmin(userId)) {
+      user.balance.totalConsumedCredits = roundCredits(user.balance.totalConsumedCredits + cost)
+    }
     user.statistics.totalGenerationRequests += 1
     user.statistics.totalVideosGenerated = (user.statistics.totalVideosGenerated || 0) + 1
     user.lastUsedAt = nowISO()
@@ -171,14 +181,15 @@ export class UserManager {
       userId,
       userName,
       type: 'consume',
-      amount: cost,
-      reason,
+      amount: this.isAdmin(userId) ? 0 : cost,
+      reason: this.isAdmin(userId) ? `${reason}（管理员免积分）` : reason,
     })
     this.saveUsers()
   }
 
-  /** 任务失败：退回预留额度 */
+  /** 任务失败：退回预留额度（管理员无预留可退） */
   refundUsage(userId: string, userName: string, cost: number, reason: string): void {
+    if (this.isAdmin(userId)) return
     const user = this.getOrCreateUser(userId, userName)
     // 简化处理：全部退到付费余额（免费额度退回会增加复杂度，误差可接受——免费额度每日重置）
     user.balance.purchasedCredits = roundCredits(user.balance.purchasedCredits + cost)
