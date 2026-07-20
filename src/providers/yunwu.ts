@@ -1,6 +1,7 @@
 import type { VideoProvider, VideoProviderConfig, VideoGenerateOptions, VideoTaskStatus } from './base'
 import { ProviderError, sanitizeString } from './errors'
 import { downloadImageAsBase64 } from './utils'
+import { withRetry } from './policies/retry'
 
 /**
  * 云雾（yunwu）视频供应商 —— xAI grok 官方格式
@@ -64,13 +65,18 @@ export class YunwuVideoProvider implements VideoProvider {
 
     let response: any
     try {
-      response = await ctx.http.post(`${apiBase}/v1/videos/generations`, body, {
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          'Content-Type': 'application/json',
-        },
-        timeout: apiTimeout * 1000,
-      })
+      // 云雾/上游偶发 429（Too Many Requests），重试 3 次（3s/6s 退避）
+      response = await withRetry(
+        () =>
+          ctx.http.post(`${apiBase}/v1/videos/generations`, body, {
+            headers: {
+              Authorization: `Bearer ${apiKey}`,
+              'Content-Type': 'application/json',
+            },
+            timeout: apiTimeout * 1000,
+          }),
+        { maxAttempts: 3, baseDelayMs: 3000 },
+      )
     } catch (error: any) {
       throw new ProviderError(`创建视频任务请求失败: ${sanitizeString(error?.message)}`, 'retryable', error)
     }
