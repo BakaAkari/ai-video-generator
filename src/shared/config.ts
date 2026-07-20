@@ -13,13 +13,21 @@ export interface Config {
   /** 视频供应商 */
   provider: 'yunwu' | 'kling' | 'omni' | 'seedance' | 'vidu'
   /** API Key */
-  apiKey: string
-  /** API 基础地址 */
+  /** API Key（云雾统一 key，全 provider 共享） */
+  apiKey: string  /** API 基础地址 */
   apiBase: string
-  /** 单图/文生视频模型 ID */
-  videoModelId: string
-  /** 多图视频模型 ID（可选） */
+  /** yunwu(grok) 模型 ID */
+  yunwuModelId: string
+  /** yunwu 多图模型 ID（可选） */
   multiImageModelId?: string
+  /** kling 模型名 */
+  klingModelName: string
+  /** omni(Gemini) 模型 ID */
+  omniModelId: string
+  /** seedance(豆包) 模型 ID */
+  seedanceModelId: string
+  /** vidu 模型 ID */
+  viduModelId: string
   /** API 超时（秒） */
   apiTimeout: number
   /** 视频任务最长等待（秒） */
@@ -44,10 +52,14 @@ export interface Config {
 
 export const Config: Schema<Config> = Schema.object({
   provider: Schema.union(['yunwu', 'kling', 'omni', 'seedance', 'vidu'] as const).default('yunwu').description('视频供应商（yunwu=grok官方格式 / kling=可灵专属 / omni=Gemini统一格式 / seedance=豆包volc / vidu=VIDU专属）'),
-  apiKey: Schema.string().required().description('API Key'),
+  apiKey: Schema.string().required().description('API Key（云雾统一 key，全 provider 共享）'),
   apiBase: Schema.string().default('https://yunwu.ai').description('API 基础地址'),
-  videoModelId: Schema.string().required().description('单图/文生视频模型 ID'),
+  yunwuModelId: Schema.string().default('grok-imagine-video').description('yunwu(grok) 模型 ID'),
   multiImageModelId: Schema.string().description('多图视频模型 ID（可选，配置后多图请求走该模型）'),
+  klingModelName: Schema.string().default('kling-v3').description('kling 模型名（kling-v1/v1-6/v2-master/v2-1-master/v2-5-turbo/v2-6/v3）'),
+  omniModelId: Schema.string().default('omni-flash').description('omni(Gemini) 模型 ID'),
+  seedanceModelId: Schema.string().default('doubao-seedance-1-0-pro-fast-251015').description('seedance(豆包) 模型 ID'),
+  viduModelId: Schema.string().default('viduq3-turbo').description('vidu 模型 ID（viduq3-pro/viduq3-turbo/viduq2/viduq1）'),
   apiTimeout: Schema.number().default(60).description('API 超时（秒）'),
   videoMaxWaitTime: Schema.number().default(300).description('视频任务最长等待（秒）'),
   defaultDuration: Schema.number().default(5).description('默认视频时长（秒）'),
